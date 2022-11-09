@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import com.example.ssbyujong.question.Question;
+import com.example.ssbyujong.user.SiteUser;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,4 +49,11 @@ public class Answer {
     //(실제 DB에선느 'ForeignKey관계'가 생성됨)
     @ManyToOne
     private Question question;
+
+
+    //- [ Answer에 속성 추가하기 ] : '3-08. entity 변경'
+    //: '답변 entity'에 'author 속성'을 추가하기
+    //'여러 개(N개)의 질문'이 '1명의 사용자'에게 작성될 수 있으므로, '@ManyToOne관계'가 성립됨.
+    @ManyToOne
+    private SiteUser author; //'SiteUser 엔티티'를 새롭게 'Answer 테이블'에 추가함
 }

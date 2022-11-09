@@ -1,10 +1,10 @@
 package com.example.ssbyujong.question;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,6 +18,9 @@ import java.util.List;
 @Controller
 public class QuestionController {
 
+
+
+//========================================================================================================
 
     //< '생성자를 작성'하여 'QuestionRepository 객체'를 'QuestionController 객체'에 의존성주입(DI) 시키는 방법 >
     //1.아래에 'QuestionRepository 객체'를 대변해줄 수 있는 '필드'를 선언하고
@@ -39,17 +42,22 @@ public class QuestionController {
     //바로 위 내용과 원리 동일함.
     private final QuestionService questionService;
 
+//========================================================================================================
 
 
-    //- [ 데이터를 조회하여, '뷰 페이지'에 전달하기 ]
+
+
+//========================================================================================================
+
+    //- [ 데이터를 '조회'하여, '뷰 페이지'에 전달하기 ]
     //'뷰 페이지에서 질문 목록을 조회'하여 출력해보기.
     //'뷰 페이지에서 질문 목록을 조회'하기 위해서는, '질문 repository'를 사용해야 함.
     //1.'질문 repository'로 '질문 목록을 조회'한 후,
     //2.이를 'model 객체'를 사용하여, '뷰 페이지'에 전달함.
-    @RequestMapping("/list")
-    public String list(Model model){
-        //'model 객체'는 '자바 클래스'와 '뷰 페이지(템플릿)' 간의 '연결고리' 역할을 함.
-        //'model 객체'에 '데이터값'을 담아 두면, 이제 '그 템플릿'에서 '그 데이터값'을 사용할 수 있음
+
+
+    //'model 객체'는 '자바 클래스'와 '뷰 페이지(템플릿)' 간의 '연결고리' 역할을 함.
+    //'model 객체'에 '데이터값'을 담아 두면, 이제 '그 템플릿'에서 '그 데이터값'을 사용할 수 있음
 
         /*
         List<Question> questionList = this.questionRepository.findAll();//'repository의 메소드 findAll'을 사용하여
@@ -80,6 +88,13 @@ public class QuestionController {
          */
 
 
+    
+        //'Paging 관련 코드 작성 전'에 '데이터를 '조회'하여, '뷰 페이지'에 전달하기' 위해,
+        // 최초에 작성한 코드. 그런데, 'Paging 관련 코드'를 이 코드 바탕으로 작성하기 때문에,
+        //이 최초의 '데이토 조회' 코드는 주석처리해줌.
+        /*
+        @RequestMapping("/list")
+        public String list(Model model){
         //위와 같은 이유로, 위에서 먼저 작성했던 repository 통한 DI는 삭제하고, 'service 객체'를 통해 DI를 진행한다 앞으로.
         List<Question> questionList = this.questionService.getList(); //'questionSerivce의 메소드 getList'
                                                                       //:'repository의 메소드 findAll'을 사용하여
@@ -95,8 +110,75 @@ public class QuestionController {
                                                                      //이제 '뷰 question_list'에서 사용할 수 있게 된다.
         return "question_list";
     }
+         */
+
+//========================================================================================================
 
 
+
+
+//========================================================================================================
+
+    //- [ 질문 게시글을 등록 ] : '2-15. 질문 등록과 폼'
+
+    @GetMapping("/create") //'질문 등록하기'의 URL 요청에 대한 Http Method의 REST API 방식은 'GET 요청'이기에
+                              //컨트롤러에서도 '@GetMapping'을 사용하여 받아줌
+    public String questionCreate(){
+
+        return "question_form"; //'메소드 questionCreate'은 '뷰 question_form'을 '렌더링'하여 출력해줌.
+    }
+
+    //'질문 게시글 생성'을 'POST 방식'으로 처리할 수 있도록 아래를 작성해줌
+    //바로 위 메소드를 오버라이딩 했음(매개변수의 형태가 다른 경우에 가능)
+    //'질문을 등록하는 템플릿'인 '뷰 question_form' 내부의 필드인 '변수 subject(질문의 제목)'와 '변수 content(질문의 내용)'를
+    //여기 '메소드 questionCreate의 매개변수'로 받는다.
+    @PostMapping("/create")
+    public String questionCreate(@RequestParam String subject, @RequestParam String content){
+
+
+
+        //이제, 입력으로 받은 '질문의 제목 subject'와 '질문의 내용 content'를 '저장'하자!
+        
+        return "redirect:/question/list"; //'질문 게시글 저장'이 완료되면, 사용자에게 '질문 목록 페이지'를 보여줌
+    }
+//========================================================================================================
+
+
+
+
+//========================================================================================================
+
+    //- [ 페이징 구현하기 ] : '3-02. 페이징'
+    //1. < Repository >
+    //: 'QuestionRepository의 '메소드 findAll'에 '인자값'으로 '인터페이스 Pageable'을 넣어준다.
+    //  이를 통해, 이제 '페이징'을 사용할 수 있음
+    //(='Pageable 객체'를 매개변수로 입력으로 받아서, 'Page<Question> 타입 객체'를 리턴하는 '메소드 findAll'을
+    // 생성함.)
+    //2. < Service >
+    //: 'QuestionService'의 '메소드 getList'를 아래처럼 작성함.
+    //3. < Controller >
+    //: 이에 맞춰서 작성해줌
+
+    //이클립스 RequestParam01 파일의 '방식 3'과 동일함. 참조하기.
+    // '@RequestParam(value="page", defaultValue="0") int page'라는 매개변수를 '메소드 list'에 추가해줌.
+    //왜냐하면, 'http://localhost:8080/question/list?page=0' 처럼 GET방식으로 요청된 URL에서 'page값'을 가져오기 위해서.
+    //URL에 '페이지 파라미터인 page'가 전달되지 않을 경우에는 디폴트 값으로 0이 되도록 설정한 것임.
+    //왜냐하면, 스프링부트 페이징의 첫페이지 번호는 1이 아닌 0이기 때문이다.
+    @RequestMapping("/list")
+    public String list(Model model, @RequestParam(value="page", defaultValue = "0") int page){
+
+        Page<Question> paging = this.questionService.getList(page); //'인터페이스 Page'를 구현하는 'Page 객체'
+
+        model.addAttribute("paging", paging);
+
+        return "question_list";
+    }
+//========================================================================================================
+
+
+
+
+//========================================================================================================
 
     //- [ 질문 상세 화면 보여주기 ]
     //'질문 목록의 제목을 클릭했을 때, 상세화면이 보여지도록' 하는 것.
@@ -107,4 +189,18 @@ public class QuestionController {
 
         return "question_detail";
     }
+
+//========================================================================================================
+
+
+
+
+//========================================================================================================
+
+
+
+
+
+
+
 }

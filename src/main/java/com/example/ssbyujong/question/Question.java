@@ -16,6 +16,7 @@ import javax.persistence.OneToMany;
 
 
 import com.example.ssbyujong.answer.Answer;
+import com.example.ssbyujong.user.SiteUser;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -52,7 +53,10 @@ public class Question {
 //subject     : 질문의 제목
 //content     : 질문의 내용
 //create_date : 질문을 작성한 일시
-    
+
+
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //고유번호 id 자동생성
     private Integer id;
@@ -65,10 +69,13 @@ public class Question {
     @Column(length = 200)
     private String subject;
 
+
     @Column(columnDefinition = "TEXT") //'columnDefinitno~~'는 '내용'처럼 '글자 수를 제한할 수 없는 경우'에 사용됨.
     private String content;
 
+
     private LocalDateTime createDate;
+
 
     //'1개의 질문'에 'N개(여러 개)의 답변'이 달리는 구조이므로, 여기 '클래스  answer'에서도 'question 객체'를 참조할 수 있음
     //이 경우에는, 당연히 1:N 관계이므로, '@OneToMany'를 달아준다.
@@ -80,4 +87,13 @@ public class Question {
     //그에 달린 'N개(여러 개)의 답변들'도 모두 함께 삭제하기 위해, '@OneToMany'의 속성으로 'cascade=CascadeType.REMOVE'를 입력해줌
     @OneToMany(mappedBy = "question", cascade=CascadeType.REMOVE)
     private List<Answer> answerList;
+
+
+    //- [ Qeustion에 속성 추가하기 ] : '3-08. entity 변경'
+    //: '질문 entity'에 'author 속성'을 추가하기
+    //'여러 개(N개)의 질문'이 '1명의 사용자'에게 작성될 수 있으므로, '@ManyToOne관계'가 성립됨.
+    //'SiteUser 엔티티'를 새롭게 'Question 테이블'에 추가함
+    @ManyToOne
+    private SiteUser author;
+
 }

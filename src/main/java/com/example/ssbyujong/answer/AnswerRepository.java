@@ -35,6 +35,10 @@ https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-me
 
 
 
+//'제네릭'으로  < 해당 entity의 타입(Answer), 해당 entity의 pk 속성 타입(Long) > 이렇게 지정해줘야 함
 public interface AnswerRepository extends JpaRepository<Answer, Integer> {
-    //제네릭으로  < 해당 entity의 타입(Answer), 해당 entity의 pk 속성 타입(Long) > 이렇게 지정해줘야 함
+
+
+
+
 }

@@ -1,5 +1,7 @@
 package com.example.ssbyujong.question;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -51,6 +53,23 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     Question findBySubjectAndContent(String subject, String content);
 
 
+    // - [
     //'질문 entity의 '제목' 속성'에 '특정 문자열'이 포함되어 있는 데이터를 조회하기.
     List<Question> findBySubjectLike(String subject);
+
+
+
+    //- [ 페이징 구현하기 ] : '3-02. 페이징'
+    //1. < Repository >
+    //: 'QuestionRepository의 '메소드 findAll'에 '인자값'으로 '인터페이스 Pageable'을 넣어준다.
+    //   이를 통해, 이제 '페이징'을 사용할 수 있음
+    //(='Pageable 객체'를 매개변수로 입력으로 받아서, 'Page<Question> 타입 객체'를 리턴하는 '메소드 findAll'을
+    // 생성함.)
+    //2. < Service >
+    //: 'QuestionService'의 '메소드 getList'를 아래처럼 작성함.
+    //3. < Controller >
+    //: 이에 맞춰서 작성해줌
+    Page<Question> findAll(Pageable pageable); //JPA 관련 라이브러리에, 이미 페이징을 위한 패키지들이 들어있음
+
+
 }
